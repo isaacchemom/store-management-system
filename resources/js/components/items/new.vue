@@ -1,5 +1,27 @@
 <template>
-<!-- Radio buttons -->
+<!-- DELETE ITEMS  MODAL -->
+<div class="modal" tabindex="-1" role="dialog" id="deleteModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">DELETE ITEM?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <h6 class="alert alert-warning">Are you sure you want to delete item?</h6>
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" @click="removeItem">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!---end of delete modal-->
 <div style="background-color:white;" class="mt-4 ml-4 mr-4">
 
     <hr />
@@ -79,6 +101,7 @@
             <th scope="col">CATEGORY</th>
             <th scope="col">QUANTITY</th>
             <th scope="col">PRICE</th>
+            <td scope="col">Option</td>
 
         </tr>
     </thead>
@@ -86,25 +109,20 @@
         <tr v-for="item in items" v-bind:key="item.id">
             <th scope="row">{{ item.name }}</th>
             <td>{{ item.item_no }}</td>
-            <th>{{ item.categories}}</th>
+            <th>{{ item.categories.name}}</th>
             <td>{{ item.quantity }}</td>
             <td>{{ item.price }}</td>
-
-            <!---<td> <input type="text" v-model="myform.name[task.id]"></td> -->
-            <!--<td>
-
-                   <input @onblur="update(task,$event.target.value)" >-
-                  <a href="#" @click.prevent="updates(task)"><i class="fa fa-edit"></i></a>
-                </td>-->
-            <td> <a href="#" @click.prevent="updateItem(item)"><i class="fa fa-edit"></i>edit</a></td>
+            <!--<td>  <input @onblur="update(task,$event.target.value)" >-
+                  <a href="#" @click.prevent="updates(task)"><i class="fa fa-edit"></i></a>  </td>-->
+            <td> <a href="#" @click.prevent="updateItem(item)"><i class="fa fa-edit"></i></a>
+                <a href="#" @click.prevent="deleteItem(item)"><i class="fa fa-trash text-danger  ml-4"></i></a>
+            </td>
         </tr>
     </tbody>
 </table>
 </template>
 
 <script>
-//import axios from 'axios';
-//import mynav from '../nav.vue'
 export default {
     // components: {
     // mynav,
@@ -132,15 +150,12 @@ export default {
     },
 
     mounted() {
+
         this.getItems();
-        this.getCategories()
-            
+
+        this.getCategories();
     },
 
-    created(){
-
-
-    },
     methods: {
         newItem() {
 
@@ -151,7 +166,7 @@ export default {
                 quantity: '',
                 price: '',
                 description: '',
-
+                categoryId: ''
             }
 
             $("#taskmodal").modal("show");
@@ -168,22 +183,30 @@ export default {
 
         },
 
+        deleteItem(id) {
+            //this.editMode = false
+
+            this.item.id = id.id;
+            $("#deleteModal").modal("show");
+        },
+
         saveItem() {
 
             this.$emitter.emit('changeLoaderStatus', true)
             // var data = new FormData(formOnes);
             axios.post("http://127.0.0.1:8000/api/addItem", this.item).then(response => {
+
                 this.$toast.success(`Item Saved successfully`, {
                     position: "top",
                     dismissible: false
                 })
+                $("#taskmodal").modal("hide");
 
-                //alert("EXCEL FILE saved successfully");
                 this.$emitter.emit('changeLoaderStatus', false);
-                this.items.push(this.item);
-            }).catch(error => {
+                this.getItems();
+                //this.items.push(this.item);
 
-                //alert("Error in uploading,check your file type and try gain!");
+            }).catch(error => {
 
                 if (error.response && error.response.status === 500) {
                     this.importErrors = error.response.data.error;
@@ -194,8 +217,7 @@ export default {
                     }, 5000);
                     //console.log('Errors:', this.errors);
                 } else {
-                    //console.error('Unknown errors:', error);
-                    // alert('check file again')
+
                     this.$toast.error(`serverError! try again!`, {
                             position: "top"
 
@@ -232,6 +254,7 @@ export default {
                     }
 
                 )
+                $("#taskmodal").modal("hide");
 
                 this.$emitter.emit('changeLoaderStatus', false)
 
@@ -272,6 +295,47 @@ export default {
 
                 this.$emitter.emit('changeLoaderStatus', false)
             })
+
+        },
+
+        removeItem() {
+            this.$emitter.emit('changeLoaderStatus', true)
+            // var data = new FormData(formOnes);
+            axios.post("http://127.0.0.1:8000/api/deleteItem/" + this.item.id).then(response => {
+
+                $("#deleteModal").modal("hide");
+                this.items = this.items.filter((item) => item.id !== this.item.id);
+
+                this.$toast.success(`Deleted successfully`, {
+                    position: "top",
+                    dismissible: false
+                })
+
+                this.$emitter.emit('changeLoaderStatus', false)
+            }).catch(error => {
+
+                //alert("Error in uploading,check your file type and try gain!");
+
+                if (error.response && error.response.status === 500) {
+
+                    this.$toast.error(`SOMETHING WENT WRONG! CONTACT ADMIN FOR HELP!`, {
+                            position: "top"
+
+                        }
+
+                    )
+                } else {
+
+                    this.$toast.error(`serverError! try again!`, {
+                            position: "top"
+
+                        }
+
+                    )
+                }
+                this.$emitter.emit('changeLoaderStatus', false)
+
+            });
 
         },
 

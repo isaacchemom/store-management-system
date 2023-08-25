@@ -23,6 +23,6 @@ class categories extends Model
     // Category.php
 public function items()
 {
-    return $this->hasMany(items::class,'category_id');
+    return $this->hasMany(items::class,'id');
 }
 }

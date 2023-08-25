@@ -20,7 +20,7 @@ class items extends Model
     // Item.php
 public function categories()
 {
-    return $this->belongsTo(categories::class,'id');
+    return $this->belongsTo(categories::class,'category_id');
 }
 }
 

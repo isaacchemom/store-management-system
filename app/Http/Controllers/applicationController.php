@@ -86,6 +86,9 @@ class applicationController extends Controller
     public function getItems(){
         $items=items::with('categories')->get();
         //$items=items::all();
+        //$user = categories::find(1); 
+        //$items = $user->items;
+
         return response()->json(['data'=>$items]);
 
     }
@@ -159,11 +162,6 @@ class applicationController extends Controller
     }
 
 
-
-
-
-
-
     public function getCategories(){
         $categories=categories::all();
         return response()->json(['data'=>$categories]);
@@ -211,19 +209,51 @@ class applicationController extends Controller
 
            
             //$item=items::find($id);
+            //$category = categories::findOrFail($id);
              $category = categories::find($id);
-             
+             //to delete categories with its related items
+           
+
+            if ($category->items()->exists() ) {
+                // The category has related items
+                return response()->json(['message' => 'Warning! This Category has related items and cannot be deleted.'], 422);
+
+            }else{
              $category->delete();
             
-            return response()->json(['message'=>'CATEGORY DELETED SUCCESSFULLY'],200);
+            return response()->json(['message'=>'CATEGORY DELETED SUCCESSFULLY'],200);}
             
         } catch (QueryException $e) {
-            return response()->json(['error' => 'Database Error:Try again!It seems item same item type is already enterd in the system !!'], 500);
+            return response()->json(['error' => 'Database Error:Contact sytem admin !!'], 500);
         } catch (\Exception $e) {
             return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
         }
         
     }
+
+
+    public function deleteItems($id)
+    {
+        
+        try {
+
+           
+             $item = items::find($id);
+             //to delete categories with its related items
+            
+             $item->delete();
+            
+            return response()->json(['message'=>'ITEM DELETED SUCCESSFULLY'],200);
+            
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Database Error:Contact sytem admin!!'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
+        }
+        
+    }
+
+
 
 
     

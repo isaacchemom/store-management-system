@@ -1,16 +1,23 @@
 <template>
 <!-- delete modal -->
+<div v-if="showAlert">
+                    <div v-if="message">
+                        <h5 class="alert alert-danger  containerx "> {{ message}} </h5>
+                    </div>
+                </div>
+
+
 <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">DELETE CATEGORY</h5>
+                <h5 class="modal-title">DELETE?</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <h5>Are you sure you want delete this category?</h5>
+                <h6 class="alert alert-warning">Are you sure you want to delete this category with its related items?</h6>
             </div>
 
             <div class="modal-footer">
@@ -119,7 +126,8 @@ export default {
             showAlert: false,
 
             editMode: false,
-            categories: []
+            categories: [],
+           // message:false
 
         }
 
@@ -178,14 +186,36 @@ export default {
                 //alert("Error in uploading,check your file type and try gain!");
 
                 if (error.response && error.response.status === 500) {
+
                     this.importErrors = error.response.data.error;
                     this.showAlert = true;
 
+                          
+                   
                     setTimeout(() => {
                         this.showAlert = false;
                     }, 5000);
+                  
+                   
                     //console.log('Errors:', this.errors);
-                } else {
+                } 
+                
+                
+                else if(error.response.status===422){
+                  
+                   this.message=error.response.data.message;
+                   this.showAlert = true;
+                   $("#deleteModal").modal("hide");
+                   setTimeout(() => {
+                        this.showAlert = false;
+                    }, 7000);
+                }
+                
+                
+                
+                
+                
+                else {
                     //console.error('Unknown errors:', error);
                     // alert('check file again')
                     this.$toast.error(`serverError! try again!`, {

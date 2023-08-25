@@ -25,6 +25,8 @@ Route::get('/getsuppliers', [applicationController::class, 'getsuppliers']);
 Route::post('/addItem', [applicationController::class, 'addItem']);
 Route::get('/getItems', [applicationController::class, 'getItems']);
 Route::patch('/updateItems/{id}', [applicationController::class, 'updateItems']);
+Route::post('/deleteItem/{id}', [applicationController::class, 'deleteItems']);
+
 
 Route::post('/addCategory', [applicationController::class, 'addCategory']);
 Route::get('/getCategories', [applicationController::class, 'getCategories']);
