@@ -1,11 +1,10 @@
 <template>
 <!-- delete modal -->
 <div v-if="showAlert">
-                    <div v-if="message">
-                        <h5 class="alert alert-danger  containerx "> {{ message}} </h5>
-                    </div>
-                </div>
-
+    <div v-if="message">
+        <h5 class="alert alert-danger  containerx "> {{ message}} </h5>
+    </div>
+</div>
 
 <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
     <div class="modal-dialog" role="document">
@@ -51,21 +50,21 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <form class="row g-3 m-auto" ref="form">
+                    <form class="row g-3 m-auto" ref="form" @submit.prevent="!editMode ? saveCategory() : editCategory()">
                         <div class="col-md-6">
                             <label class="form-label">NAME</label>
-                            <input type="text" class="form-control" v-model="category.name" required pattern="[A-Za-z\s]+">
+                            <input type="text" class="form-control" v-model="category.name" required pattern="[A-Za-z\s]+" placeholder="e.g consumables, learning materials">
                         </div>
 
                         <div class="col-md-6">
-                            <label class="form-label">DESCRIPTION</label>
-                            <input type="text" class="form-control" v-model="category.description" required placeholder="Optional">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" v-model="category.description" placeholder="Optional">
                         </div>
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" @click="!editMode ? saveCategory() : editCategory()" class="btn btn-primary">
-                                {{ !editMode ? 'save Item' : 'Update Item' }}</button>
+                            <button type="submit" class="btn btn-primary">
+                                {{ !editMode ? 'Save' : 'Update' }}</button>
                         </div>
                     </form>
                 </div>
@@ -77,14 +76,15 @@
 </div>
 <hr>
 <div class="ml-4">
-    <h4>LIST OF CATEGORY</h4>
-    <button @click="newcategory" class="text-green float-right mr-5">ADD NEW </button>
+
+    <button @click="newcategory" class=" btn btn-primary">ADD NEW </button>
+    <h4 class="text-center">LIST OF CATEGORIES</h4>
     <table class="table table-stripped table-hover ">
         <thead>
             <tr>
-                <th scope="col">NAME</th>
+                <th scope="col">Name</th>
 
-                <th scope="col">DESCRIPTION</th>
+                <th scope="col">Description</th>
                 <th scope="col">Option</th>
 
             </tr>
@@ -127,7 +127,7 @@ export default {
 
             editMode: false,
             categories: [],
-           // message:false
+            // message:false
 
         }
 
@@ -173,12 +173,12 @@ export default {
 
                 $("#deleteModal").modal("hide");
                 //this.category.value=this.category.value.filter(category.id!==this.category.id)
-                this.categories = this.categories.filter((category) => category.id !== this.category.id);
 
                 this.$toast.success(`Deleted successfully`, {
                     position: "top",
                     dismissible: false
                 })
+                this.categories = this.categories.filter((category) => category.id !== this.category.id);
 
                 this.$emitter.emit('changeLoaderStatus', false)
             }).catch(error => {
@@ -190,32 +190,20 @@ export default {
                     this.importErrors = error.response.data.error;
                     this.showAlert = true;
 
-                          
-                   
                     setTimeout(() => {
                         this.showAlert = false;
                     }, 5000);
-                  
-                   
+
                     //console.log('Errors:', this.errors);
-                } 
-                
-                
-                else if(error.response.status===422){
-                  
-                   this.message=error.response.data.message;
-                   this.showAlert = true;
-                   $("#deleteModal").modal("hide");
-                   setTimeout(() => {
+                } else if (error.response.status === 422) {
+
+                    this.message = error.response.data.message;
+                    this.showAlert = true;
+                    $("#deleteModal").modal("hide");
+                    setTimeout(() => {
                         this.showAlert = false;
                     }, 7000);
-                }
-                
-                
-                
-                
-                
-                else {
+                } else {
                     //console.error('Unknown errors:', error);
                     // alert('check file again')
                     this.$toast.error(`serverError! try again!`, {
@@ -236,14 +224,18 @@ export default {
             this.$emitter.emit('changeLoaderStatus', true)
 
             axios.post("http://127.0.0.1:8000/api/addCategory", this.category).then(response => {
-                this.$toast.success(`Item Saved successfully`, {
+
+                this.$toast.success(`Category added successfully`, {
                     position: "top",
                     dismissible: false
                 })
                 $("#taskmodal").modal("hide");
 
+                // this.categories='';
+
                 this.$emitter.emit('changeLoaderStatus', false);
                 this.categories.push(this.category);
+
             }).catch(error => {
 
                 if (error.response && error.response.status === 500) {

@@ -97,13 +97,28 @@
                             <router-link to="/suppliers" class="nav-link" active-class="active">
                                 <i class="nav-icon fas fa-th"></i>
                                 <p>
-                                    SUPPLIER MANAGEMENT
+                                    SUPPLIERS
 
                                 </p>
                             </router-link>
 
                         </li>
                     </ul>
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    data-accordion="false">
+
+                    <li class="nav-item">
+
+                        <router-link to="/departments" class="nav-link" active-class="active">
+                            <i class="nav-icon fas fa-th"></i>
+                            <p>
+                                DEPARTMENTS|OFFICES
+
+                            </p>
+                        </router-link>
+
+                    </li>
+                </ul>
 
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                     data-accordion="false">

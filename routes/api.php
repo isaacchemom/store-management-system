@@ -32,3 +32,8 @@ Route::post('/addCategory', [applicationController::class, 'addCategory']);
 Route::get('/getCategories', [applicationController::class, 'getCategories']);
 Route::patch('/updateCategory/{id}', [applicationController::class, 'updateCategory']);
 Route::post('/deleteCategory/{id}', [applicationController::class, 'deleteCategory']);
+
+Route::post('/addDepartment', [applicationController::class, 'addDepartment']);
+Route::get('/getDepartments', [applicationController::class, 'getDepartments']);
+Route::patch('/updateDepartment/{id}', [applicationController::class, 'updateDepartment']);
+Route::post('/deleteDepartment/{id}', [applicationController::class, 'deleteDepartment']);

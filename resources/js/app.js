@@ -14,6 +14,7 @@ import emitter from './eventLoader.js';
 import suppliers from './components/suppliers/add.vue'
 import items from './components/items/new.vue'
 import category from './components/items/categories.vue'
+import department from './components/departments/add.vue'
 
 
 import { createApp } from 'vue/dist/vue.esm-bundler.js';
@@ -30,6 +31,7 @@ const routes = [
   { path: '/suppliers', component: suppliers },
   {path:'/items' , component:items},
   {path:'/category', component:category},
+  {path:'/departments',component:department}
 
 ];
 
@@ -51,7 +53,6 @@ const router = createRouter({
 
 
 app.component('loader-component', LoaderComponent)
-//pp.provide('emitter', emitter);
 
 app.use(router);
 app.mount('#app');

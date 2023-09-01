@@ -16,7 +16,7 @@
             <div class="modal-footer">
 
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" @click="removeItem">Delete</button>
+                <button type="button" class="btn btn-danger" @click="removeDepartment">Delete</button>
             </div>
         </div>
     </div>
@@ -31,7 +31,7 @@
             <div class="modal-content">
                 <div class="modal-header">
 
-                    <h5 class="modal-title" id="taskModalLabel">{{ !editMode ? 'Add Item.' : 'Update items' }}</h5>
+                    <h5 class="modal-title" id="taskModalLabel">{{ !editMode ? 'Add Department|Office.' : 'Update Department' }}</h5>
 
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -44,43 +44,15 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    <form class="row g-3 m-auto" ref="form" @submit.prevent="!editMode ? saveItem() : editItems()">
+                    <form class="row g-3 m-auto" ref="form" @submit.prevent="!editMode ? saveDepartment() : editDepartment()">
                         <div class="col-md-6">
                             <label class="form-label">NAME</label>
-                            <input type="text" class="form-control" v-model="item.name" required >
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">ITEM CODE</label>
-                            <input type="text" class="form-control" v-model="item.item_no" required>
+                            <input type="text" class="form-control" placeholder="Enter name of department" v-model="department.name" required pattern="[A-Za-z\s]+">
                         </div>
 
-                        <div class="col-md-6">
-                            <label class="form-label">CATEGORY</label>
-                            <select v-model="item.categoryId" class="form-control" required>
-                                <option value="" disabled>Select a Category</option>
-                                <option v-for="category in mycategories" :value="category.id" :key="category.id">{{ category.name }}</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">SUPPLIER NAME</label>
-                            <select v-model="item.supplierId" class="form-control" required>
-                                <option value="" disabled>Select supplier</option>
-                                <option v-for="supplier in suppliers" :value="supplier.id" :key="supplier.id">{{ supplier.name }}</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Quantity</label>
-                            <input type="text" class="form-control" v-model="item.quantity" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">PRICE</label>
-                            <input type="text" class="form-control" v-model="item.price" required>
-                        </div>
                         <div class="col-md-6">
                             <label class="form-label">DESCRIPTION</label>
-                            <input type="text" class="form-control" v-model="item.description">
+                            <input type="text" class="form-control" v-model="department.description" placeholder="Optional">
                         </div>
 
                         <div class="modal-footer">
@@ -97,67 +69,56 @@
 
 </div>
 <hr>
+<div class="container">
 
-<div class="ml-4">
-    <button class="btn btn-primary" @click="newItem">ADD NEW </button>
+<button class="btn btn-primary" @click="newItem">ADD NEW </button>
+<h5 class="text-center">DEPARTMENTS|OFFICES</h5>
+<table class="table table-stripped table-hover">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">NAME</th>
+            <th scope="col">DESCRIPTION</th>
+            <th scope="col">Option</th>
 
-    <h4 class="text-center">LIST OF ITEMS</h4>
-    <table class="table table-stripped table-hover">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">NAME</th>
-                <th scope="col">ITEM NUMBER</th>
-                <th scope="col">CATEGORY</th>
-                <th scope="col">SUPPLIER NAME</th>
-                <th scope="col">QUANTITY</th>
-                <th scope="col">PRICE</th>
-                <th scope="col">Option</th>
-
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(item, index) in items" v-bind:key="index">
-                <td scope="row">{{ index+1}}</td>
-                <td scope="row">{{ item.name }}</td>
-                <td>{{ item.item_no }}</td>
-                <td>{{ item.categories.name}}</td>
-                <td>{{ item.suppliers.name}}</td>
-                <td>{{ item.quantity }}</td>
-                <td>{{ item.price }}</td>
-                <!--<td>  <input @onblur="update(task,$event.target.value)" >-
-                  <a href="#" @click.prevent="updates(task)"><i class="fa fa-edit"></i></a>  </td>-->
-                <td> <a href="#" @click.prevent="updateItem(item)"><i class="fa fa-edit"></i></a>
-                    <a href="#" @click.prevent="deleteItem(item)"><i class="fa fa-trash text-danger  ml-4"></i></a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+        </tr>
+    </thead>
+    <tbody>
+        <tr v-for="(department, index) in departments" v-bind:key="index">
+            <td>{{ index+1 }}</td>
+            <td>{{ department.name }}</td>
+            <td v-if="department.description==null">
+                <h5>--</h5>
+            </td>
+            <td v-else>{{ department.description }}</td>
+            <!--<td>  <input @onblur="update(task,$event.target.value)" >-
+                      <a href="#" @click.prevent="updates(task)"><i class="fa fa-edit"></i></a>  </td>-->
+            <td> <a href="#" @click.prevent="updateDepartment(department)"><i class="fa fa-edit"></i></a>
+                <a href="#" @click.prevent="deleteDepartment(department)"><i class="fa fa-trash text-danger  ml-4"></i></a>
+            </td>
+        </tr>
+    </tbody>
+</table>
 </div>
 </template>
 
 <script>
 export default {
     // components: {
+    // mynav,
 
+    // },
     data() {
         return {
-            item: {
+            department: {
                 name: '',
-                item_no: '',
-                quantity: '',
-                price: '',
                 description: '',
-                categoryId: '',
-                supplierId: ''
+
             },
             showAlert: false,
-            //  form: null,
-            // edit: false,
             editMode: false,
-            items: [],
+            departments: [],
             mycategories: [],
-            suppliers: [],
 
         }
 
@@ -165,60 +126,56 @@ export default {
 
     mounted() {
 
-        this.getItems();
-        this.getsuppliers();
+        this.getDepartments();
 
-        this.getCategories();
+        //this.getCategories();
     },
 
     methods: {
         newItem() {
 
             this.editMode = false
-            this.item = {
+            this.department = {
                 name: '',
-                item_no: '',
-                quantity: '',
-                price: '',
                 description: '',
-                categoryId: ''
+            
             }
 
             $("#taskmodal").modal("show");
         },
 
-        updateItem(myitem) {
+        updateDepartment(myitem) {
             //console.log(supplier);
             //this.item = ''
             this.editMode = true;
             $("#taskmodal").modal("show");
-            this.item = myitem;
+             this.department = myitem;
 
             // alert('hi boy')
 
         },
 
-        deleteItem(myitem) {
+        deleteDepartment(myitem) {
             //this.editMode = false
 
-            this.item.id = myitem.id;
+             this.department.id = myitem.id;
             $("#deleteModal").modal("show");
         },
 
-        saveItem() {
+        saveDepartment() {
 
             this.$emitter.emit('changeLoaderStatus', true)
             // var data = new FormData(formOnes);
-            axios.post("http://127.0.0.1:8000/api/addItem", this.item).then(response => {
+            axios.post("http://127.0.0.1:8000/api/addDepartment", this.department).then(response => {
 
-                this.$toast.success(`Item Saved successfully`, {
+                this.$toast.success(`Saved successfully`, {
                     position: "top",
                     dismissible: false
                 })
                 $("#taskmodal").modal("hide");
 
                 this.$emitter.emit('changeLoaderStatus', false);
-                this.getItems();
+                this.getDepartments();
                 //this.items.push(this.item);
 
             }).catch(error => {
@@ -233,7 +190,7 @@ export default {
                     //console.log('Errors:', this.errors);
                 } else {
 
-                    this.$toast.error(`serverError! try again!`, {
+                    this.$toast.error(`Server Error! try again!`, {
                             position: "top"
 
                         }
@@ -245,22 +202,22 @@ export default {
             });
         },
 
-        getItems() {
+        getDepartments() {
             this.$emitter.emit('changeLoaderStatus', true)
-            axios.get("http://127.0.0.1:8000/api/getItems").then(response => {
-                this.items = response.data.data;
+            axios.get("http://127.0.0.1:8000/api/getDepartments").then(response => {
+                this.departments = response.data.data;
 
                 this.$emitter.emit('changeLoaderStatus', false)
             })
 
         },
 
-        editItems() {
+        editDepartment() {
 
             this.$emitter.emit('changeLoaderStatus', true)
-            axios.patch("http://127.0.0.1:8000/api/updateItems/" + this.item.id, this.item).then(() => {
+            axios.patch("http://127.0.0.1:8000/api/updateDepartment/" + this.department.id, this.department).then(() => {
 
-                this.$toast.success(`Saved successfully`,
+                this.$toast.success(`Updated successfully`,
 
                     {
                         position: "top",
@@ -313,13 +270,13 @@ export default {
 
         },
 
-        removeItem() {
+        removeDepartment() {
             this.$emitter.emit('changeLoaderStatus', true)
             // var data = new FormData(formOnes);
-            axios.post("http://127.0.0.1:8000/api/deleteItem/" + this.item.id).then(response => {
+            axios.post("http://127.0.0.1:8000/api/deleteDepartment/" + this.department.id).then(response => {
 
                 $("#deleteModal").modal("hide");
-                this.items = this.items.filter((item) => item.id !== this.item.id);
+                this.departments = this.departments.filter((department) => department.id !== this.department.id);
 
                 this.$toast.success(`Deleted successfully`, {
                     position: "top",
@@ -353,15 +310,6 @@ export default {
             });
 
         },
-        getsuppliers() {
-            this.$emitter.emit('changeLoaderStatus', true)
-            axios.get("http://127.0.0.1:8000/api/getsuppliers").then(response => {
-                this.suppliers = response.data.data;
-
-                this.$emitter.emit('changeLoaderStatus', false)
-            })
-
-        }
 
     },
 

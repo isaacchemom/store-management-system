@@ -22,5 +22,11 @@ public function categories()
 {
     return $this->belongsTo(categories::class,'category_id');
 }
+//department.php
+    public function suppliers()
+    {
+        return $this->belongsTo(suppliers::class, 'supplier_id');
+    }
+
 }
 

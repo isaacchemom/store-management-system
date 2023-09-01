@@ -19,8 +19,11 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->text('description')->nullable();
             $table->unsignedBigInteger('category_id');
+            $table->unsignedBigInteger('supplier_id');
             $table->timestamps();
 
+
+            $table->foreign('supplier_id')->references('id')->on('suppliers');
            $table->foreign('category_id')
            ->references('id')
            ->on('categories')

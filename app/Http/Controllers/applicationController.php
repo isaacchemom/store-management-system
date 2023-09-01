@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\suppliers;
 use App\Models\items;
 use App\Models\categories;
-
+use App\Models\department;
 
 class applicationController extends Controller
 {
@@ -69,6 +69,7 @@ class applicationController extends Controller
             $supplier->price = $request->input('price');
             $supplier->description = $request->input('description');
             $supplier->category_id = $request->input('categoryId');
+            $supplier->supplier_id = $request->input('supplierId');
             $supplier->save();
     
             return response()->json(['message'=>'ITEM SAVED SUCCESSFULLY'],200);
@@ -84,11 +85,11 @@ class applicationController extends Controller
 
 
     public function getItems(){
-        $items=items::with('categories')->get();
+        //to item table with categories and suppliersb based on foreign key and primary key
+        $items=items::with('categories','suppliers')->get();
         //$items=items::all();
         //$user = categories::find(1); 
-        //$items = $user->items;
-
+        
         return response()->json(['data'=>$items]);
 
     }
@@ -138,11 +139,6 @@ class applicationController extends Controller
             $request->validate([
                 'name' => 'required|string|max:30',
                // 'item_no' => 'required|max:30',
-               
-              //  'quantity' => 'required|max:20',
-               // 'price' => 'required',
-               // 'description' => 'required|numeric|digits:10',
-               // 'email' => 'required|string|max:255',
               
             ]); 
             //$item=items::find($id);
@@ -178,10 +174,6 @@ class applicationController extends Controller
                 'name' => 'required|string|max:30',
                // 'item_no' => 'required|max:30',
                
-              //  'quantity' => 'required|max:20',
-               // 'price' => 'required',
-               // 'description' => 'required|numeric|digits:10',
-               // 'email' => 'required|string|max:255',
               
             ]); 
             //$item=items::find($id);
@@ -254,6 +246,87 @@ class applicationController extends Controller
     }
 
 
+    public function addDepartment(Request $request)
+    {
+        
+        try {
+
+            $request->validate([
+                'name' => 'required|string|max:30',
+              
+         
+            ]); 
+            //$item=items::find($id);
+             $department = new department();
+             $department->name = $request->input('name');
+             $department->description = $request->input('description');
+             $department->save();
+            
+            return response()->json(['message'=>'DEPARTMENT ADDED SUCCESSFULLY'],200);
+            
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Database Error:Contact adminstrator!!'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
+        }
+     
+
+    }
+
+
+    public function getDepartments(){
+
+        $departments=department::all();
+
+        return response()->json(['data'=>$departments],200);
+    }
+
+
+    public function updateDepartment(Request $request,$id)
+    {
+        
+        try {
+
+            $request->validate([
+                'name' => 'required|string|max:30',
+              
+         
+            ]); 
+            $department=department::find($id);
+             //$department = new department();
+             $department->name = $request->input('name');
+             $department->description = $request->input('description');
+             $department->save();
+            
+            return response()->json(['message'=>'DEPARTMENT UPDATED SUCCESSFULLY'],200);
+            
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Database Error:Contact adminstrator for help!!'], 500);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred: ' . $e->getMessage()], 500);
+        }
+     
+
+    }
+
+    public function deleteDepartment($id)
+    {
+        
+        try {
+
+           
+             $dept = department::find($id);
+             //to delete categories with its related items
+            
+             $dept->delete();
+            
+            return response()->json(['message'=>'DEPT DELETED SUCCESSFULLY'],200);
+            
+        } catch (QueryException $e) {
+            return response()->json(['error' => 'Database Error:Contact sytem admin!!'], 500);
+        } 
+        
+    }
 
 
     

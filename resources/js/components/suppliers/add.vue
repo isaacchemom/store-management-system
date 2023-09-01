@@ -57,13 +57,13 @@
 </div>
 <hr>
 
-<h4>LIST OF SUPPLIERS</h4>
-<button @click="newsupplier">ADD NEW </button>
+<h4 class="text-center">LIST OF SUPPLIERS</h4>
+<button @click="newsupplier" class="btn btn-primary">ADD NEW </button>
 <table class="table table-stripped table-hover">
     <thead>
         <tr>
+            <th scope="col">#</th>
             <th scope="col">NAME</th>
-
             <th scope="col">CONTACT</th>
             <th scope="col">EMAIL</th>
 
@@ -71,8 +71,9 @@
         </tr>
     </thead>
     <tbody>
-        <tr v-for="supplier in suppliers" v-bind:key="supplier.id">
-            <th scope="row">{{ supplier.name }}</th>
+        <tr v-for="(supplier, index) in suppliers" v-bind:key="index">
+            <td>{{ index+1}}</td>
+            <td>{{ supplier.name }}</td>
             <td>{{ supplier.contact }}</td>
             <td>{{ supplier.email }}</td>
             <td>{{ supplier.address }}</td>
@@ -146,8 +147,6 @@ export default {
 
             }
 
-            // alert('hi boy')
-
         },
 
         savesupplier() {
@@ -162,6 +161,7 @@ export default {
 
                 //alert("EXCEL FILE saved successfully");
                 this.$emitter.emit('changeLoaderStatus', false)
+                this.getsuppliers()
             }).catch(error => {
 
                 //alert("Error in uploading,check your file type and try gain!");
