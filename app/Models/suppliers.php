@@ -14,7 +14,8 @@ class suppliers extends Model
     protected $fillable = [
         'name',
         'contact',
-         'email',
+         'company',
+         'item',
         'address',
         // Add more columns here...
     ];

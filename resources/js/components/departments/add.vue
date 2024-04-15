@@ -1,5 +1,10 @@
 <template>
 <!-- DELETE ITEMS  MODAL -->
+<div v-if="showAlert">
+    <div v-if="message">
+        <h5 class="alert alert-danger  container "> {{ message}} </h5>
+    </div>
+</div>
 <div class="modal" tabindex="-1" role="dialog" id="deleteModal">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -23,8 +28,6 @@
 </div>
 <!---end of delete modal-->
 <div style="background-color:white;" class="mt-4 ml-4 mr-4">
-
-    <hr />
 
     <div class="modal fade" id="taskmodal" tabindex="-1" role="dialogx" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centred modal-lg" role="document">
@@ -68,46 +71,56 @@
     </div>
 
 </div>
-<hr>
 <div class="container">
 
-<button class="btn btn-primary" @click="newItem">ADD NEW </button>
-<h5 class="text-center">DEPARTMENTS|OFFICES</h5>
-<table class="table table-stripped table-hover">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">NAME</th>
-            <th scope="col">DESCRIPTION</th>
-            <th scope="col">Option</th>
+    <div class="text-right" style="margin-top:-1%; margin-right:5%;"><button class="btn btn-primary" @click="newItem" style="font-size:12px;z-index: 1;
+    position: relative"><i class="fa fa-plus">ADD NEW</i> </button>
+    </div>
+    <h6 class="text-center text-primary">DEPARTMENTS</h6>
+    <table class="table table-striped table-hover table-bordered table-sm " style="text-transform: uppercase;"> 
+        <thead class="text-info">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">NAME</th>
+                <th scope="col">CREATED ON</th>
+                <th scope="col">DESCRIPTION</th>
+               
+                <th scope="col">Option</th>
 
-        </tr>
-    </thead>
-    <tbody>
-        <tr v-for="(department, index) in departments" v-bind:key="index">
-            <td>{{ index+1 }}</td>
-            <td>{{ department.name }}</td>
-            <td v-if="department.description==null">
-                <h5>--</h5>
-            </td>
-            <td v-else>{{ department.description }}</td>
-            <!--<td>  <input @onblur="update(task,$event.target.value)" >-
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(department, index) in departments.data" v-bind:key="index">
+                <td>{{ index+1 }}</td>
+                <td>{{ department.name }}</td>
+                <td>{{  formatCategoryDate(department.created_at) }}</td>
+                <td v-if="department.description==null">
+                    <h5>____</h5>
+                </td>
+                <td v-else>{{ department.description }}</td>
+               
+                <!--<td>  <input @onblur="update(task,$event.target.value)" >-
                       <a href="#" @click.prevent="updates(task)"><i class="fa fa-edit"></i></a>  </td>-->
-            <td> <a href="#" @click.prevent="updateDepartment(department)"><i class="fa fa-edit"></i></a>
-                <a href="#" @click.prevent="deleteDepartment(department)"><i class="fa fa-trash text-danger  ml-4"></i></a>
-            </td>
-        </tr>
-    </tbody>
-</table>
+                <td> <a href="#" @click.prevent="updateDepartment(department)"><i class="fa fa-edit"></i></a>
+                    <a href="#" @click.prevent="deleteDepartment(department)"><i class="fa fa-trash text-danger  ml-4"></i></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <Bootstrap4Pagination  :data="departments"  @pagination-change-page="getDepartments"/>
 </div>
+
 </template>
 
 <script>
-export default {
-    // components: {
-    // mynav,
+import { format } from 'date-fns';
+import {Bootstrap4Pagination} from 'laravel-vue-pagination';
 
-    // },
+export default {
+     components: {
+        Bootstrap4Pagination
+
+     },
     data() {
         return {
             department: {
@@ -132,13 +145,19 @@ export default {
     },
 
     methods: {
+
+        formatCategoryDate(dateString) {
+      // Parse the date string and format it using date-fns
+      return format(new Date(dateString), 'd/M/y H:mm:ss');},
+
+
         newItem() {
 
             this.editMode = false
             this.department = {
                 name: '',
                 description: '',
-            
+
             }
 
             $("#taskmodal").modal("show");
@@ -149,7 +168,7 @@ export default {
             //this.item = ''
             this.editMode = true;
             $("#taskmodal").modal("show");
-             this.department = myitem;
+            this.department = myitem;
 
             // alert('hi boy')
 
@@ -158,7 +177,7 @@ export default {
         deleteDepartment(myitem) {
             //this.editMode = false
 
-             this.department.id = myitem.id;
+            this.department.id = myitem.id;
             $("#deleteModal").modal("show");
         },
 
@@ -166,7 +185,7 @@ export default {
 
             this.$emitter.emit('changeLoaderStatus', true)
             // var data = new FormData(formOnes);
-            axios.post("http://127.0.0.1:8000/api/addDepartment", this.department).then(response => {
+            axios.post("https://centralstore.chukahighschool.sc.ke/api/addDepartment", this.department).then(response => {
 
                 this.$toast.success(`Saved successfully`, {
                     position: "top",
@@ -181,16 +200,27 @@ export default {
             }).catch(error => {
 
                 if (error.response && error.response.status === 500) {
+
                     this.importErrors = error.response.data.error;
                     this.showAlert = true;
 
                     setTimeout(() => {
                         this.showAlert = false;
                     }, 5000);
-                    //console.log('Errors:', this.errors);
-                } else {
 
-                    this.$toast.error(`Server Error! try again!`, {
+                    //console.log('Errors:', this.errors);
+                } else if (error.response.status === 422) {
+
+                    this.message = error.response.data.message;
+                    this.showAlert = true;
+                    $("#deleteModal").modal("hide");
+                    setTimeout(() => {
+                        this.showAlert = false;
+                    }, 7000);
+                } else {
+                    //console.error('Unknown errors:', error);
+                    // alert('check file again')
+                    this.$toast.error(`server Error! try again!`, {
                             position: "top"
 
                         }
@@ -200,14 +230,15 @@ export default {
                 this.$emitter.emit('changeLoaderStatus', false)
 
             });
+
         },
 
-        getDepartments() {
-            this.$emitter.emit('changeLoaderStatus', true)
-            axios.get("http://127.0.0.1:8000/api/getDepartments").then(response => {
+        getDepartments(page = 1) {
+            this.$emitter.emit('mychangeLoaderStatus', true)
+            axios.get('https://centralstore.chukahighschool.sc.ke/api/getDepartments?page='+ page).then(response => {
                 this.departments = response.data.data;
 
-                this.$emitter.emit('changeLoaderStatus', false)
+                this.$emitter.emit('mychangeLoaderStatus', false)
             })
 
         },
@@ -215,7 +246,7 @@ export default {
         editDepartment() {
 
             this.$emitter.emit('changeLoaderStatus', true)
-            axios.patch("http://127.0.0.1:8000/api/updateDepartment/" + this.department.id, this.department).then(() => {
+            axios.patch("https://centralstore.chukahighschool.sc.ke/api/updateDepartment/" + this.department.id, this.department).then(() => {
 
                 this.$toast.success(`Updated successfully`,
 
@@ -261,11 +292,11 @@ export default {
 
         // function to fetch categories for selection on item selcetion form
         getCategories() {
-            this.$emitter.emit('changeLoaderStatus', true)
-            axios.get("http://127.0.0.1:8000/api/getCategories").then(response => {
+            this.$emitter.emit('mychangeLoaderStatus', true)
+            axios.get("https://centralstore.chukahighschool.sc.ke/api/getCategories").then(response => {
                 this.mycategories = response.data.data;
 
-                this.$emitter.emit('changeLoaderStatus', false)
+                this.$emitter.emit('mychangeLoaderStatus', false)
             })
 
         },
@@ -273,31 +304,42 @@ export default {
         removeDepartment() {
             this.$emitter.emit('changeLoaderStatus', true)
             // var data = new FormData(formOnes);
-            axios.post("http://127.0.0.1:8000/api/deleteDepartment/" + this.department.id).then(response => {
+            axios.post("https://centralstore.chukahighschool.sc.ke/api/deleteDepartment/" + this.department.id).then(response => {
 
                 $("#deleteModal").modal("hide");
-                this.departments = this.departments.filter((department) => department.id !== this.department.id);
-
+               
                 this.$toast.success(`Deleted successfully`, {
                     position: "top",
                     dismissible: false
                 })
-
+                this.departments.data = this.departments.data.filter((department) => department.id !== this.department.id);
                 this.$emitter.emit('changeLoaderStatus', false)
+               
             }).catch(error => {
 
                 //alert("Error in uploading,check your file type and try gain!");
 
                 if (error.response && error.response.status === 500) {
 
-                    this.$toast.error(`SOMETHING WENT WRONG! CONTACT ADMIN FOR HELP!`, {
-                            position: "top"
+                    this.importErrors = error.response.data.error;
+                    this.showAlert = true;
 
-                        }
+                    setTimeout(() => {
+                        this.showAlert = false;
+                    }, 5000);
 
-                    )
+                    //console.log('Errors:', this.errors);
+                } else if (error.response.status === 422) {
+
+                    this.message = error.response.data.message;
+                    this.showAlert = true;
+                    $("#deleteModal").modal("hide");
+                    setTimeout(() => {
+                        this.showAlert = false;
+                    }, 7000);
                 } else {
-
+                    //console.error('Unknown errors:', error);
+                    // alert('check file again')
                     this.$toast.error(`serverError! try again!`, {
                             position: "top"
 

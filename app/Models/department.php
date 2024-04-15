@@ -21,8 +21,9 @@ class department extends Model
     use HasFactory;
 
 
-    public function items()
-    {
-        return $this->hasMany(items::class,'id');
-    }
+    
+   public function items()
+   {
+       return $this->hasMany(items::class,'department_id');
+   }
 }

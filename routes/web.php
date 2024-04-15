@@ -13,13 +13,28 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get('/', function () {
+  //  return view('myhome');
+//})->middleware('auth');
 
+
+//Route::get('/dashboard', function () {
+   // return view('myhome');
+//})->middleware('auth');
 
 //Route::get('/{any?}', ApplicationController::class)->where('any','.*');
 
-Route::get('/{any?}', function () {
-    return view('home');
-})->where('any', '.*');
+
+
+
+
+
+Route::get('/1/{any?}', function () {
+  return view('myhome');
+})->where('any', '.*')->middleware('auth');;
+
+
+
+Auth::routes();
+
+Route::get('/', [App\Http\Controllers\HomeController::class, 'index']);

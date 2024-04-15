@@ -30,7 +30,7 @@
 
 <div style="background-color:white;" class="mt-4 ml-4 mr-4">
 
-    <hr />
+    
 
     <div class="modal fade" id="taskmodal" tabindex="-1" role="dialogx" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centred modal-lg" role="document">
@@ -74,25 +74,36 @@
     </div>
 
 </div>
-<hr>
-<div class="ml-4">
 
-    <button @click="newcategory" class=" btn btn-primary">ADD NEW </button>
-    <h4 class="text-center">LIST OF CATEGORIES</h4>
-    <table class="table table-stripped table-hover ">
-        <thead>
+<div class="ml-4x container">
+
+
+    <div class="text-right" style="margin-top:-1%; margin-right:5%;"><button class="btn btn-primary" 
+    @click="newcategory" style="font-size:12px;z-index: 1;
+    position: relative"><i class="fa fa-plus">New Category</i> </button> 
+</div>
+    <h5 class="text-center text-success">CATEGORIES</h5>
+    <table class="table table-striped table-hover table-bordered ">
+        <thead class="text-info">
             <tr>
                 <th scope="col">Name</th>
-
+                <th scope="col">Created</th>
                 <th scope="col">Description</th>
+                
                 <th scope="col">Option</th>
+                
 
             </tr>
         </thead>
         <tbody>
             <tr v-for="category in categories" v-bind:key="category.id">
                 <td> {{ category.name }} </td>
-                <td>{{ category.description }}</td>
+               
+                <td> {{formatCategoryDate(category.created_at)}} </td>
+                <td v-if="category.description==null">
+                    <h5>_____</h5>
+                </td>
+                <td v-else>{{ category.description }}</td>
 
                 <!---<td> <input type="text" v-model="myform.name[task.id]"></td> -->
                 <!--<td>
@@ -110,13 +121,15 @@
 </template>
 
 <script>
+//import { useDate } from '@vueuse/core';
+import { format } from 'date-fns';
 //import axios from 'axios';
 //import mynav from '../nav.vue'
 export default {
-    // components: {
-    // mynav,
+     components: {
+   //useDate
 
-    // },
+     },
     data() {
         return {
             category: {
@@ -137,7 +150,11 @@ export default {
         this.getCategories()
     },
     methods: {
-
+        formatCategoryDate(dateString) {
+      // Parse the date string and format it using date-fns
+      return format(new Date(dateString), 'd/M/y H:mm:ss');
+    },
+      
         deleteCategory(deleteCategory) {
             //this.editMode = false
 
@@ -169,7 +186,7 @@ export default {
         removeCategory() {
             this.$emitter.emit('changeLoaderStatus', true)
             // var data = new FormData(formOnes);
-            axios.post("http://127.0.0.1:8000/api/deleteCategory/" + this.category.id).then(response => {
+            axios.post("https://centralstore.chukahighschool.sc.ke/api/deleteCategory/" + this.category.id).then(response => {
 
                 $("#deleteModal").modal("hide");
                 //this.category.value=this.category.value.filter(category.id!==this.category.id)
@@ -223,7 +240,7 @@ export default {
 
             this.$emitter.emit('changeLoaderStatus', true)
 
-            axios.post("http://127.0.0.1:8000/api/addCategory", this.category).then(response => {
+            axios.post("https://centralstore.chukahighschool.sc.ke/api/addCategory", this.category).then(response => {
 
                 this.$toast.success(`Category added successfully`, {
                     position: "top",
@@ -234,7 +251,8 @@ export default {
                 // this.categories='';
 
                 this.$emitter.emit('changeLoaderStatus', false);
-                this.categories.push(this.category);
+               // this.categories.push(this.category);
+                this.getCategories();
 
             }).catch(error => {
 
@@ -261,11 +279,11 @@ export default {
         },
 
         getCategories() {
-            this.$emitter.emit('changeLoaderStatus', true)
-            axios.get("http://127.0.0.1:8000/api/getCategories").then(response => {
+            this.$emitter.emit('mychangeLoaderStatus', true)
+            axios.get("https://centralstore.chukahighschool.sc.ke/api/getCategories").then(response => {
                 this.categories = response.data.data;
 
-                this.$emitter.emit('changeLoaderStatus', false)
+                this.$emitter.emit('mychangeLoaderStatus', false)
             })
 
         },
@@ -273,7 +291,7 @@ export default {
         editCategory() {
 
             this.$emitter.emit('changeLoaderStatus', true)
-            axios.patch("http://127.0.0.1:8000/api/updateCategory/" + this.category.id, this.category).then(() => {
+            axios.patch("https://centralstore.chukahighschool.sc.ke/api/updateCategory/" + this.category.id, this.category).then(() => {
 
                 this.$toast.success(`Updated successfully`,
 
